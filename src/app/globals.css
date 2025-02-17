@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,10 +12,50 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
-  color: var(--foreground);
+  color: #000034;
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter';
 }
+
+h1,h2,h3,h4,h5,h6{
+  font-weight: 700;
+  font-family: 'Montserrat';
+}
+
+h1{
+  font-size: 3rem;
+}
+
+h2{
+  font-size: 2.5rem;
+}
+
+h3{
+  font-size: 2rem;
+}
+
+ul {
+  list-style: none; /* Remove default bullets */
+}
+
+li {
+  position: relative;
+  padding-left: 1.35rem; /* Space for the image */
+  margin-bottom: 8px; /* Optional spacing between items */
+}
+
+li::before {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%); /* Center vertically */
+  width: 0.75rem; /* Set image width */
+  height: 0.75rem; /* Set image height */
+  background-image: url('/bullet.svg');
+  background-size: contain; /* Scale image to fit */
+}
+
