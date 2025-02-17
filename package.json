@@ -1,29 +1,67 @@
 {
-  "name": "quays-webapp",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "flowbite-react": "^0.10.2",
-    "next": "15.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-icons": "^5.4.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.6",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
+	"name": "quays-webapp",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@ramonak/react-progress-bar": "^5.3.0",
+		"@reduxjs/toolkit": "^2.5.1",
+		"@tanstack/react-query": "^5.66.5",
+		"axios": "^1.7.9",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"cookies-next": "^5.1.0",
+		"date-fns": "^4.1.0",
+		"flowbite-react": "^0.10.2",
+		"formik": "^2.4.6",
+		"next": "15.1.6",
+		"nextjs-toploader": "^3.7.15",
+		"react": "^19.0.0",
+		"react-currency-input-field": "^3.9.0",
+		"react-datepicker": "^8.1.0",
+		"react-dom": "^19.0.0",
+		"react-drag-drop-files": "^2.4.0",
+		"react-hot-toast": "^2.5.2",
+		"react-icons": "^5.4.0",
+		"react-modal": "^3.16.3",
+		"react-paginate": "^8.3.0",
+		"react-phone-number-input": "^3.4.11",
+		"react-redux": "^9.2.0",
+		"react-select": "^5.10.0",
+		"react-tooltip": "^5.28.0",
+		"redux": "^5.0.1",
+		"redux-persist": "^6.0.0",
+		"sharp": "^0.33.5",
+		"tailwind-merge": "^3.0.1",
+		"title-case": "^4.3.2",
+		"usehooks-ts": "^3.1.1",
+		"yup": "^1.6.1"
+	},
+	"devDependencies": {
+		"@eslint/eslintrc": "^3",
+		"@svgr/webpack": "^8.1.0",
+		"@tanstack/eslint-plugin-query": "^5.66.1",
+		"@tanstack/react-query-devtools": "^5.66.5",
+		"@types/node": "^20",
+		"@types/react": "^19",
+		"@types/react-datepicker": "^7.0.0",
+		"@types/react-dom": "^19",
+		"@types/react-modal": "^3.16.3",
+		"@types/redux-persist": "^4.3.1",
+		"eslint": "^9",
+		"eslint-config-next": "15.1.6",
+		"postcss": "^8",
+		"prettier": "^3.5.1",
+		"sass": "^1.85.0",
+		"tailwindcss": "^3.4.1",
+		"typescript": "^5"
+	},
+	"resolutions": {
+		"@types/react": "^18.0.0"
+	}
 }
