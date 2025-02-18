@@ -1,8 +1,9 @@
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import storage from "@/libs/client-storage";
 import { persistReducer } from "redux-persist";
+import petDetailsSlice from "./features/pet-details-slice";
 
-const rootReducer = combineSlices();
+const rootReducer = combineSlices(petDetailsSlice);
 
 const persistConfig = {
   key: "root",

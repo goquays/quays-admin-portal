@@ -12,11 +12,13 @@ let requestSignal;
 
 const API = axios.create({
   // baseURL: process.env.NEXT_PUBLIC_BASE_URL,
-  baseURL: "http://quays-insurance-service.mintfintech.com",
+  baseURL: "https://quays-insurance-service.mintfintech.com",
 });
 
 API.interceptors.request.use(
   (config) => {
+    config.headers["x-request-client-key"] = "cXVheXMtd2ViLWNsaWVudC1rZXktMDAxMDAx"; // To-Do: Put in env
+    config.headers["x-timezone"] = "Africa/Lagos";
     const accessToken = getCookie(QUAYS_USER_TOKEN);
     accessToken && (config.headers["Authorization"] = "Bearer " + accessToken);
     requestSignal = CancelToken.source();

@@ -8,6 +8,9 @@ const nextConfig = {
     return config;
   },
   reactStrictMode: false,
+  devIndicators: {
+    appIsrStatus: false,
+  },
 };
 
 export default nextConfig;

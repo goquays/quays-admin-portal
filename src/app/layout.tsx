@@ -15,6 +15,7 @@ const montserrat = Montserrat({
 
 const inter = Inter({
   subsets: ["latin"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

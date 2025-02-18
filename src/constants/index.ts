@@ -3,6 +3,7 @@ export const QUAYS_USER_TOKEN = "QUAYS_USER_TOKEN";
 export const QUAYS_USER_REFRESH_TOKEN = "QUAYS_USER_REFRESH_TOKEN";
 export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 export const FILE_SIZE = 5_000_000;
+export const PET_DETAILS_PAYLOAD = "PET_DETAILS_PAYLOAD";
 
 export const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)");
 export const dayMaxAge = { maxAge: 24 * 60 * 60 * 1000 };

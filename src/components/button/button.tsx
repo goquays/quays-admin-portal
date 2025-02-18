@@ -21,7 +21,7 @@ const buttonStyles = cva(
   {
     variants: {
       intent: {
-        primary: ["bg-purple", "text-white", "disabled:bg-[#C8BCF6]"],
+        primary: ["bg-purple", "text-white", "disabled:bg-[#B0B0B0]"],
       },
     },
     compoundVariants: [

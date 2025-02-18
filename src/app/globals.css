@@ -51,7 +51,8 @@ body {
   max-width: 2055px;
   margin: 0 auto;
   position: relative;
-  background-color: #fff;
+  background-color: #fffaf6;
+  color: #000034;
 }
 
 h1,
@@ -218,6 +219,11 @@ input[type="radio"] {
   border-radius: 50% !important;
 }
 
+input[type="number"]:focus,
+input {
+  box-shadow: none !important;
+}
+
 select {
   cursor: pointer;
 }
@@ -252,6 +258,14 @@ select {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #dfe1e7;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 1728px;
+  margin: 0 auto;
+  padding-left: 137px;
+  padding-right: 137px;
 }
 
 /* OTP Input */
@@ -464,10 +478,14 @@ select {
   box-shadow: none;
 }
 
-.select-container .react-select__control--is-focused {
+/* .select-container .react-select__control--is-focused {
   box-shadow:
     0px 0px 0px 4px #f5ebfe,
     0px 0px 0px 2px #fff !important;
+} */
+
+.select-container .react-select__control--is-focused {
+  box-shadow: none !important;
 }
 
 .react-select__placeholder {
@@ -639,15 +657,13 @@ select {
 
 /* React Tooltip */
 .react-tooltip {
-  background-color: #fff !important;
-  border: 1px solid #e2e4e9 !important;
-  /* max-width: 225px !important; */
-  color: #0d0d12 !important;
-  font-size: 12px !important;
+  background: #fff !important;
+  /* border: 2px solid #000034 !important; */
+  color: #000000 !important;
+  font-size: 13px !important;
   line-height: 20px;
   padding: 4px 10px !important;
   opacity: 1 !important;
-  /* top: 383px !important; */
   border-radius: 6px !important;
   box-shadow:
     0px 1px 2px 0px rgba(228, 229, 231, 0.24),
@@ -655,11 +671,40 @@ select {
   white-space: pre-wrap !important;
   text-align: left !important;
   font-weight: 400 !important;
+  z-index: 85;
 }
 
 /* .react-tooltip-arrow {
   left: 30px !important;
 } */
+
+@media (max-width: 1536px) {
+  .wrapper {
+    padding-left: 97px;
+    padding-right: 97px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .wrapper {
+    padding-left: 57px;
+    padding-right: 57px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .wrapper {
+    padding-left: 37px;
+    padding-right: 37px;
+  }
+}
+
+@media (max-width: 767px) {
+  .wrapper {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
 
 @media (max-width: 500px) {
   .page-item {
