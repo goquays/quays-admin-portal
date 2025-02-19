@@ -1,7 +1,4 @@
 export interface PetDetailsPayload {
-  coverIllnessesAndAccidents: boolean;
-  leastClaimAmount: number;
-  startDate: string;
   petDetailList: PetDetailList[];
 }
 
@@ -17,21 +14,21 @@ export interface PetData {
   dateOfBirth: string;
   breed: string;
   amountDonated: number;
-  coverExtraActivities: boolean;
-  color: string;
-  ownershipType: string;
+  coverExtraActivities?: boolean;
+  color?: string;
+  ownershipType?: string;
   // height: number;
-  hHeight: number;
-  iHeight: number;
+  hHeight?: number;
+  iHeight?: number;
 }
 
 export interface HealthData {
   coverPreexistingCondition: boolean;
-  hasBeenNeutered: boolean;
-  hasBeenChipped: boolean;
-  hasShownSignsOfAggression: boolean;
-  vaccineUpToDate: boolean;
-  hasBeenSubjectOfLegalComplaint: boolean;
+  hasBeenNeutered?: boolean;
+  hasBeenChipped?: boolean;
+  hasShownSignsOfAggression?: boolean;
+  vaccineUpToDate?: boolean;
+  hasBeenSubjectOfLegalComplaint?: boolean;
 }
 
 export interface PetMetaData {

@@ -1,3 +1,4 @@
+import { HealthData, PetData, PetDetailList } from "@/types";
 import { MutationCache, QueryCache } from "@tanstack/react-query";
 
 export function clearDataCache() {
@@ -24,3 +25,24 @@ export function formatEnum(enumValue: string) {
 }
 
 export const maxAgeByMinutes = (minutes: number) => ({ maxAge: minutes * 60 * 1000 });
+
+export const handleUpdatePetDetails = (prevList: PetDetailList[], payload: PetDetailList, index: number) => {
+  const updatedPetDetailList = prevList.map((item, i) => {
+    if (i === index) {
+      return {
+        ...item,
+        petData: {
+          ...item.petData,
+          ...payload.petData,
+        },
+        healthData: {
+          ...item.healthData,
+          ...payload.healthData,
+        },
+      };
+    }
+    return item;
+  });
+
+  return updatedPetDetailList;
+};

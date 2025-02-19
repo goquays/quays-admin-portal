@@ -38,7 +38,7 @@ export default function CustomInput({
   return (
     <div className={cn("w-full", className)}>
       {label && (
-        <label htmlFor={props.id ? props.id : name} className="mb-[6px] text-base font-medium w-fit block">
+        <label htmlFor={props.id ? props.id : name} className="mb-4 text-base font-medium w-fit block">
           {label}
         </label>
       )}

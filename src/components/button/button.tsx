@@ -8,7 +8,8 @@ const buttonStyles = cva(
   [
     "font-medium",
     "text-base",
-    "h-20",
+    "lg:text-lg",
+    "h-[60px]",
     "w-fit",
     "whitespace-nowrap",
     "flex",
@@ -22,6 +23,8 @@ const buttonStyles = cva(
     variants: {
       intent: {
         primary: ["bg-purple", "text-white", "disabled:bg-[#B0B0B0]"],
+        outline: ["bg-transparent", "text-primary", "border-[3px]", "border-primary"],
+        textUnderline: ["w-fit", "h-fit", "p-0", "underline", "font-semibold", "rounded-none", "underline-offset-2"],
       },
     },
     compoundVariants: [

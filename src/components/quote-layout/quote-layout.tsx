@@ -11,12 +11,18 @@ type Props = {
   className?: string;
 };
 
-export default function QuoteLayout({ children, className, petDetailsProgress = 7, ownerDetailsProgress = 0 }: Props) {
+export default function QuoteLayout({
+  children,
+  className,
+  petDetailsProgress = 100,
+  ownerDetailsProgress = 0,
+}: Props) {
   return (
     <div className={cn("w-full h-full bg-background", className)}>
       <div className="wrapper h-full w-full relative">
-        <div className="flex items-center gap-4 h-[97px] py-8 w-full sticky top-0 left-0 mx-auto z-[300] bg-background">
+        <div className="flex items-center gap-4 min-h-[97px] lg:h-[97px] py-8 w-full sticky top-0 left-0 mx-auto z-[300] bg-background">
           <Image
+            priority
             alt="Quays Logo"
             width={200}
             height={200}

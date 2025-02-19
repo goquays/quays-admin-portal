@@ -21,10 +21,10 @@ export default function OptionsPill({ className, label, value, selectedValue, on
         className,
       )}
     >
-      <span className="w-6 h-6 rounded-[50%] border border-border flex items-center justify-center">
+      <span className="w-6 h-6 rounded-[50%] border border-border flex items-center justify-center flex-shrink-0">
         <span className={`h-[18px] w-[18px] rounded-[50%] ${isSelected ? "bg-primary" : "bg-transparent"}`}></span>
       </span>
-      <span className="text-base">{label}</span>
+      <span className="text-base font-medium">{label}</span>
     </div>
   );
 }

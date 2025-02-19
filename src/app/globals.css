@@ -660,14 +660,15 @@ select {
   background: #fff !important;
   /* border: 2px solid #000034 !important; */
   color: #000000 !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 20px;
-  padding: 4px 10px !important;
+  padding: 4px 10px 16px !important;
   opacity: 1 !important;
   border-radius: 6px !important;
-  box-shadow:
+  /* box-shadow:
     0px 1px 2px 0px rgba(228, 229, 231, 0.24),
-    0px 12px 24px 0px rgba(134, 140, 152, 0.12);
+    0px 12px 24px 0px rgba(134, 140, 152, 0.12); */
+  box-shadow: none;
   white-space: pre-wrap !important;
   text-align: left !important;
   font-weight: 400 !important;
@@ -685,12 +686,12 @@ select {
   }
 }
 
-@media (max-width: 1280px) {
+/* @media (max-width: 1280px) {
   .wrapper {
-    padding-left: 57px;
-    padding-right: 57px;
+    padding-left: 97px;
+    padding-right: 97px;
   }
-}
+} */
 
 @media (max-width: 1024px) {
   .wrapper {

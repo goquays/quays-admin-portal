@@ -26,7 +26,8 @@ export default function HelpTooltip({
       data-tooltip-content={toolTipContent}
       data-tooltip-place={toolTipPlace}
     >
-      <ExclamationIcon className="h-6 w-6 mr-4 align-middle inline" /> <span className="underline">Need help?</span>
+      <ExclamationIcon className="h-6 w-6 mr-4 align-middle inline" />{" "}
+      <span className="underline font-semibold">Need help?</span>
       <Tooltip
         id={toolTipId}
         className={cn("max-w-[270px] sm:max-w-[381px] w-full", tooltipClass)}

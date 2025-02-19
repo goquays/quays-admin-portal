@@ -3,12 +3,16 @@
 import BackButton from "@/components/back-button/back-button";
 import React from "react";
 import PetDetailsForm from "./pet-details-form";
+import { useAppDispatch } from "@/hooks/use-store";
+import { setIsEditing } from "@/store/features/pet-details-slice";
 
 export default function PetDetails() {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="w-full pb-[130px] lg:pb-[195px]">
       <div className="flex lg:gap-6 gap-4 items-baseline">
-        <BackButton />
+        <BackButton onClick={() => dispatch(setIsEditing(false))} />
         <h1 className="max-w-[900px] mx-auto lg:text-center font-bold xl:text-[60px] lg:text-[40px] text-[32px]">
           Paw-some Protection for Your Furry BFF
         </h1>

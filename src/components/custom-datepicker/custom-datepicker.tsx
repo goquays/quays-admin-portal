@@ -8,7 +8,9 @@ type Props = {
   onChangeMonth: (value: string) => void;
   onChangeYear: (value: string) => void;
   error?: string | boolean;
-  value?: string;
+  dayValue?: string;
+  monthValue?: string;
+  yearValue?: string;
   inputClass?: string;
 };
 
@@ -18,7 +20,9 @@ export default function CustomDatePicker({
   onChangeMonth,
   onChangeYear,
   error,
-  value,
+  dayValue,
+  monthValue,
+  yearValue,
   inputClass,
 }: Props) {
   return (
@@ -31,7 +35,7 @@ export default function CustomDatePicker({
           type="number"
           min={1}
           max={31}
-          value={value?.split("-")[2]}
+          value={dayValue}
           onChange={(e) => {
             if ((e.target.value && Number(e.target.value) > 31) || (e.target.value && Number(e.target.value) < 1))
               return;
@@ -44,7 +48,7 @@ export default function CustomDatePicker({
           type="number"
           min={1}
           max={12}
-          value={value?.split("-")[1]}
+          value={monthValue}
           onChange={(e) => {
             if ((e.target.value && Number(e.target.value) > 12) || (e.target.value && Number(e.target.value) < 1))
               return;
@@ -58,7 +62,7 @@ export default function CustomDatePicker({
           type="number"
           min={1}
           max={getYear(new Date())}
-          value={value?.split("-")[0]}
+          value={yearValue}
           onChange={(e) => {
             if (
               e.target.value.length === 5 ||

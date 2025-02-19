@@ -1,16 +1,22 @@
-import { PET_DETAILS_PAYLOAD } from "@/constants";
 import { PetDetailsPayload } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getCookie } from "cookies-next";
 
 export interface PetDetailsSliceState {
-  petDetailsPayload: PetDetailsPayload | null;
+  petDetailsPayload: PetDetailsPayload;
   indexOfPetToEdit: number;
+  isEditing: boolean;
 }
 
 const initialState: PetDetailsSliceState = {
-  petDetailsPayload: JSON.parse(getCookie(PET_DETAILS_PAYLOAD) || "{}"),
+  // petDetailsPayload: JSON.parse(
+  //   getCookie(PET_DETAILS_PAYLOAD) ||
+  //     JSON.stringify({
+  //       petDetailList: [],
+  //     }),
+  // ),
+  petDetailsPayload: { petDetailList: [] },
   indexOfPetToEdit: 0,
+  isEditing: false,
 };
 
 const petDetailsSlice = createSlice({
@@ -23,8 +29,16 @@ const petDetailsSlice = createSlice({
     updateIndexToEdit: (state, action: PayloadAction<number>) => {
       state.indexOfPetToEdit = action.payload;
     },
+    resetPetDetails: (state) => {
+      state.petDetailsPayload = {
+        petDetailList: [],
+      };
+    },
+    setIsEditing: (state, action: PayloadAction<boolean>) => {
+      state.isEditing = action.payload;
+    },
   },
 });
 
 export default petDetailsSlice;
-export const { updatePetDetails, updateIndexToEdit } = petDetailsSlice.actions;
+export const { updatePetDetails, updateIndexToEdit, resetPetDetails, setIsEditing } = petDetailsSlice.actions;
