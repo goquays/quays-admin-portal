@@ -22,7 +22,7 @@ const AdminSidebar: React.FC = () => {
   };
 
   const confirmLogout = () => {
-    logout;
+    logout();
     setModalState('success'); // Open the success modal
     setTimeout(() => {
       router.push('/admin-login'); // Redirect to the login page
