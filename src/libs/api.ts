@@ -13,6 +13,9 @@ let requestSignal;
 const API = axios.create({
   // baseURL: process.env.NEXT_PUBLIC_BASE_URL,
   baseURL: "https://quays-insurance-service.mintfintech.com",
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 API.interceptors.request.use(
@@ -29,6 +32,7 @@ API.interceptors.request.use(
     Promise.reject(error);
   },
 );
+
 
 API.interceptors.response.use(
   async (response) => {
@@ -52,6 +56,33 @@ API.interceptors.response.use(
 
     return Promise.reject(error);
   },
+);
+
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    console.log('Token in request interceptor:', token); // Debugging
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`; // Set the Bearer token
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      console.log('Token expired or invalid, redirecting to /admin-login'); // Debugging
+      localStorage.removeItem('token'); // Remove the expired token
+      localStorage.removeItem('user'); // Remove user data
+      window.location.href = '/admin-login'; // Redirect to login page
+    }
+    return Promise.reject(error);
+  }
 );
 
 export { API, requestSignal };

@@ -679,6 +679,39 @@ select {
   left: 30px !important;
 } */
 
+.custom-placeholder::placeholder {
+  font-size: 0.875rem; 
+}
+
+/* Hide the default calendar icon in WebKit browsers */
+input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+/* Hide the default calendar icon in Firefox */
+input[type='date']::-moz-calendar-picker-indicator {
+  display: none;
+}
+
+/* Hide the default placeholder text in date inputs */
+input[type='date']::placeholder {
+  color: transparent;
+}
+
+/* Hide the default placeholder text in WebKit browsers */
+/* input[type='date']::-webkit-datetime-edit {
+  color: transparent;
+} */
+
+/* Hide the default placeholder text in Firefox */
+/* input[type='date']::-moz-placeholder {
+  color: transparent;
+} */
+
+.transition-transform {
+  transition: transform 0.3s ease-in-out;
+}
+
 @media (max-width: 1536px) {
   .wrapper {
     padding-left: 97px;
