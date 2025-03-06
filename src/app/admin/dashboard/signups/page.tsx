@@ -135,13 +135,17 @@ const SignupsPage = () => {
     }, [currentPage, totalPages]);
 
     // Function to export data to Excel
-    const exportToExcel = useCallback(() => {
-        const worksheet = XLSX.utils.json_to_sheet(filteredSignups);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
-        XLSX.writeFile(workbook, 'signups.xlsx');
-    }, [filteredSignups]);
-
+    const exportToExcel = useCallback(async () => {
+        try {
+          const worksheet = XLSX.utils.json_to_sheet(filteredSignups);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
+          XLSX.writeFile(workbook, 'signups.xlsx');
+        } catch (error) {
+          throw new Error('Failed to export data'); // Throw an error if export fails
+        }
+      }, [filteredSignups]);
+      
     // Function to focus the date input when the wrapper is clicked
     const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
         if (ref.current) {
@@ -171,10 +175,10 @@ const SignupsPage = () => {
                 </Link>
                 <input
                     type="text"
-                    placeholder="Search by Serial Number, Name, Email, Phone Number, Date Registered..."
+                    placeholder="Search by Name, Email, Phone Number, Date Registered..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-1/2 p-2 border border-gray-300 rounded-full bg-transparent"
+                    className="w-1/2 p-2 border border-gray-300 rounded-full bg-transparent placeholder:text-xs placeholder:opacity-75 focus:placeholder:text-sm"
                 />
             </div>
 

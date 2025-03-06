@@ -32,11 +32,11 @@ const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
                 onChange={(e) => onChange(e.target.value)}
                 className="pl-10 p-2 border border-gray-300 rounded-full text-gray-500 bg-transparent cursor-pointer"
             />
-            {!value && (
+            {/* {!value && (
                 <span className="absolute left-10 text-gray-400 pointer-events-none">
                     {placeholder}
                 </span>
-            )}
+            )} */}
         </div>
     )
 );

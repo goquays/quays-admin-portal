@@ -48,7 +48,7 @@ const AdminSidebar: React.FC = () => {
         <ul className="space-y-4">
           <NavItem href="/admin/dashboard" icon="dashboard" label="Dashboard" />
           <NavItem
-            href="/admin/push-notifications"
+            href="#"
             icon="notification"
             label="Push Notifications"
           />

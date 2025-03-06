@@ -56,7 +56,10 @@ export default function PoliciesPage() {
   const filteredPolicies = useMemo(() => {
     return policies.map((policy) => ({
       ...policy,
-      typeOfInsurance: policy.pets.length > 0 ? policy.pets[0].type : 'N/A', // Add typeOfInsurance field
+      // Concatenate all pet types into a single string
+      typeOfInsurance: policy.pets.length > 0
+        ? policy.pets.map((pet: any) => pet.type).join(', ')
+        : 'N/A', // If no pets, show 'N/A'
     })).filter((policy) => {
       // Safely handle null or undefined values
       const fullName = policy.fullName ? policy.fullName.toLowerCase() : '';
@@ -133,14 +136,17 @@ export default function PoliciesPage() {
   }, [currentPage, totalPages]);
 
   // Function to export data to Excel
-  const exportToExcel = useCallback(() => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredPolicies);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Policies');
-    XLSX.writeFile(workbook, 'policies.xlsx');
-  }, [filteredPolicies]);
+  const exportToExcel = useCallback(async () => {
+    try {
+      const worksheet = XLSX.utils.json_to_sheet(filteredPolicies);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Abandoned Policies');
+      XLSX.writeFile(workbook, 'abandoned-policies.xlsx');
+    } catch (error) {
+      throw new Error('Failed to export data'); // Throw an error if export fails
+    }
+  }, [filteredPolicies]);  // Function to focus the date input when the wrapper is clicked
 
-  // Function to focus the date input when the wrapper is clicked
   const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
     if (ref.current) {
       ref.current.focus();
@@ -162,7 +168,7 @@ export default function PoliciesPage() {
 
   if (loading) {
     return <div>
-      <LoadingSpinner/>
+      <LoadingSpinner />
     </div>;
   }
 
@@ -175,10 +181,10 @@ export default function PoliciesPage() {
         </Link>
         <input
           type="text"
-          placeholder="Search by Policy Number, Name, Email, Phone Number, Date Created..."
+          placeholder="Search by Name, Email, Phone Number, Date Created..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-1/2 p-2 border border-gray-300 rounded-full bg-transparent"
+          className="w-1/2 p-2 border border-gray-300 rounded-full bg-transparent placeholder:text-xs placeholder:opacity-75 focus:placeholder:text-sm"
         />
       </div>
 
@@ -199,7 +205,7 @@ export default function PoliciesPage() {
           onClick={() => handleWrapperClick(endDateRef)}
         />
         <button
-          onClick={() => {}}
+          onClick={() => { }}
           className="bg-[#000034] text-white px-4 py-2 rounded-full hover:bg-[#000034]"
         >
           Apply Date Range
