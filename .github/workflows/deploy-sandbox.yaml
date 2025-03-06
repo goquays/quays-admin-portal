@@ -1,0 +1,53 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Deploy to Test Service
+
+on:
+  push:
+    branches: [ "sandbox" ]
+
+jobs:
+
+  build:
+    env:
+      IMAGE_TAG: 'goquays/quays-admin-portal:sandbox'
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup QEMU docker actions
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          build-args: |
+            APP_ENV=sandbox
+            APP_HOST=${{ secrets.DEV_API_URL }}
+            APP_CLIENT_KEY=${{ secrets.DEV_CLIENT_KEY }}
+          push: true
+          tags: ${{env.IMAGE_TAG}}
+
+      - name: Run app on service.
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP_ADDRESS }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          passphrase: ${{ secrets.SERVER_PASSPHRASE }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            whoami
+            cd /home/dev_user/quays/admin-portal && docker image pull ${{env.IMAGE_TAG}}
+            cd /home/dev_user/quays/admin-portal  && docker-compose down && docker-compose up -d
+            docker image prune -f
