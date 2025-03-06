@@ -47,9 +47,9 @@ const RowDetailsModal: React.FC<RowDetailsModalProps> = ({ isOpen, onClose, rowD
     const renderSection = (title: string, data: { [key: string]: any }) => (
         <div className="mb-6">
             <h4 className="text-lg font-semibold mb-4">{title}</h4>
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-wrap gap-4'>
                 {Object.entries(data).map(([key, value]) => (
-                    <div key={key} className="pb-2 mb-2 w-[45%]">
+                    <div key={key} className="pb-2 mb-2 w-[47%]">
                         <p className="text-base font-medium text-black">{formatLabel(key)}</p>
                         <p className="border border-gray-200 rounded-full text-sm text-gray-600 p-2 mt-2 truncate">
                             {typeof value === 'string' || typeof value === 'number' ? value : 'N/A'}
@@ -67,7 +67,7 @@ const RowDetailsModal: React.FC<RowDetailsModalProps> = ({ isOpen, onClose, rowD
             {pets.map((pet, index) => (
                 <div key={index} className="mb-4">
                     <h5 className="text-md font-medium mb-2">Pet {index + 1}</h5>
-                    <div className='flex flex-wrap gap-2'>
+                    <div className='flex flex-wrap gap-4'>
                         {Object.entries(pet).map(([key, value]) => (
                             <div key={key} className="pb-2 mb-2 w-[45%]">
                                 <p className="text-base font-medium text-black">{formatLabel(key)}</p>
@@ -85,12 +85,12 @@ const RowDetailsModal: React.FC<RowDetailsModalProps> = ({ isOpen, onClose, rowD
     return (
         <div className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50" onClick={onClose}>
             <div
-                className="w-1/4 bg-white h-screen shadow-lg p-4 overflow-y-auto transform transition-transform duration-300 ease-in-out"
+                className="w-[30%] bg-white h-screen shadow-lg p-4 overflow-y-auto transform transition-transform duration-300 ease-in-out"
                 style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)' }} // Slide in/out animation
                 onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
             >
                 <MdClose size={24} className="text-black cursor-pointer mb-6" onClick={onClose} />
-                <div className="space-y-4">
+                <div className="space-y-4 p-6">
                     {/* Conditional Rendering Based on Type */}
                     {type === 'signup' ? (
                         // Signup Page Data
