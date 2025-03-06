@@ -64,7 +64,7 @@ const SignupsPage = () => {
             const fullName = user.fullName.toLowerCase();
             const email = user.email ? user.email.toLowerCase() : '';
             const phoneNumber = user.phoneNumber || '';
-            const signupSource = user.onboardingSource || '';
+            const signupSource = user.onboardingPlatform || '';
 
             const matchesSearchQuery =
                 fullName.includes(searchQuery.toLowerCase()) ||
@@ -145,7 +145,7 @@ const SignupsPage = () => {
           throw new Error('Failed to export data'); // Throw an error if export fails
         }
       }, [filteredSignups]);
-      
+
     // Function to focus the date input when the wrapper is clicked
     const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
         if (ref.current) {
