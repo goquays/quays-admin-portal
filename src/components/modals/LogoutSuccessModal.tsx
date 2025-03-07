@@ -9,7 +9,7 @@ interface LogoutSuccessModalProps {
 
 export default function LogoutSuccessModal({ onClose }: LogoutSuccessModalProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
       <div className="bg-white rounded-lg shadow-lg text-center max-w-md">
         <div className="flex justify-between py-6 px-4 gap-4 border-b border-gray-200">
           <BsDash size={24} className="text-black" />
