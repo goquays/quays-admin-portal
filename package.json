@@ -40,6 +40,7 @@
 		"tailwind-merge": "^3.0.1",
 		"title-case": "^4.3.2",
 		"usehooks-ts": "^3.1.1",
+		"uuid": "^11.1.0",
 		"xlsx": "^0.18.5",
 		"yup": "^1.6.1"
 	},
