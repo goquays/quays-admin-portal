@@ -6,7 +6,6 @@ export const adminLogin = async (email: string, password: string) => {
   try {
     const deviceId = uuidv4();
     const payload = { email, password, deviceId }; // Add the required field
-    console.log('Request Payload:', payload); // Log the payload
     const response = await API.post(apiEndpoints.authentication.adminLogin, payload);
 
     // Extract the token and other data from the response

@@ -10,7 +10,7 @@ interface DateInputProps {
 
 const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
     ({ value, onChange, placeholder, onClick }, ref) => (
-        <div className="relative flex items-center cursor-pointer" onClick={onClick}>
+        <div className="relative flex items-center cursor-pointer -z-0" onClick={onClick}>
             <span className="absolute left-2 text-gray-400">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

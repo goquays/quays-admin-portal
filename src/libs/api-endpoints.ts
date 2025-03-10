@@ -23,6 +23,8 @@ const apiEndpoints = {
     exportUsers: "/api/admin/v1/dashboard/users/export",
     getPolicies: (type: string) => `/api/admin/v1/dashboard/policy/${type}`,
     exportPolicies: "/api/admin/v1/dashboard/policy/{type}/export",
+    changePassword: "/api/v1/account/password-change",
+    updateProfile: "/api/v1/account/user",
   }
 };
 

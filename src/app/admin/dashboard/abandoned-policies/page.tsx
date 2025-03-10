@@ -189,7 +189,7 @@ export default function PoliciesPage() {
       </div>
 
       {/* Date filter */}
-      <div className="flex justify-end gap-4 mb-5">
+      <div className="flex justify-end gap-4 mb-5 -z-0">
         <DateInput
           ref={startDateRef}
           value={startDate}

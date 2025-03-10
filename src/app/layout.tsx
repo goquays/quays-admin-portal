@@ -20,7 +20,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Quays",
-  description: "Quays",
+  description: "Quays Admin Portal",
 };
 
 export default function RootLayout({

@@ -36,16 +36,20 @@ const LoginForm: React.FC = () => {
     try {
       const response = await adminLogin(email, password);
       if (response.success) {
-        login(response.token, response.user); // Save the token and user data
-        setIsModalOpen(true); // Show the success modal
+        login(response.token, {
+          firstname: response.user.firstname, // Ensure firstName is included
+          lastname: response.user.lastname, // Ensure lastName is included
+          profileImage: response.user.profileImage,
+          email: response.user.email,
+        });
+        setIsModalOpen(true); // Show success modal
       } else {
-        setError(response.message || 'Login failed'); // Show error message
+        setError(response.message || 'Login failed');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.'); // Handle unexpected errors
+      setError('An error occurred. Please try again.');
     }
   };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword); // Toggle visibility
   };
