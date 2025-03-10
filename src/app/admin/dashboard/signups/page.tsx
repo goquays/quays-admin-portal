@@ -64,7 +64,7 @@ const SignupsPage = () => {
             const fullName = user.fullName.toLowerCase();
             const email = user.email ? user.email.toLowerCase() : '';
             const phoneNumber = user.phoneNumber || '';
-            const signupSource = user.onboardingPlatform || '';
+            const signupSource = user.onboardingSource || '';
 
             const matchesSearchQuery =
                 fullName.includes(searchQuery.toLowerCase()) ||

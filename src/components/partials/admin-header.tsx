@@ -1,13 +1,11 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
-import User from '/public/assets/images/user-image.png';
 import { MdClose, MdKeyboardArrowDown, MdEdit } from 'react-icons/md';
 import profileImageMale from '/public/assets/images/profile-image-m.jpg';
 import profileImageFemale from '/public/assets/images/profile-image-f.jpg';
 import { FaCamera, FaRegCheckCircle } from 'react-icons/fa';
 import { API } from '@/libs/api';
 import apiEndpoints from '@/libs/api-endpoints';
-import { BsDash } from 'react-icons/bs';
 import { useAuth } from '@/context/AuthContext';
 
 interface AdminHeaderProps {
@@ -23,7 +21,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false); // State for password change modal
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // State for success modal
 
-  const [newProfileImage, setNewProfileImage] = useState<string | null>(null); // State for new profile image
+  const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
   const [oldPassword, setOldPassword] = useState(''); // State for old password
   const [newPassword, setNewPassword] = useState(''); // State for new password
   const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
@@ -73,25 +71,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
     reader.onload = () => setNewProfileImage(reader.result as string);
     reader.readAsDataURL(file);
 
-    // Prepare FormData
-    const formData = new FormData();
-    formData.append('profileImage', file);
-
     try {
-      const response = await API.put(apiEndpoints.admin.updateProfile, formData);
+      const updatedProfileImage = await uploadProfileImage(file);
 
-      if (response.data.success) {
-        const updatedProfileImage = response.data.data.profileImage;
+      // Update user context
+      updateProfile({ profileImage: updatedProfileImage });
 
-        // Update user context
-        updateProfile({ profileImage: updatedProfileImage });
-
-        // Persist in localStorage
-        const updatedUser = { ...user, profileImage: updatedProfileImage };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      } else {
-        throw new Error(response.data.message || 'Failed to update profile image.');
-      }
+      // Persist in localStorage
+      const updatedUser = { ...user, profileImage: updatedProfileImage };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
     } catch (error) {
       console.error('Error updating profile image:', error);
       alert('Failed to update profile image. Please try again.');
@@ -161,7 +149,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
         confirmPassword,
       };
 
-      const response = await API.post(apiEndpoints.admin.changePassword, payload);
+      const response = await API.put(apiEndpoints.admin.changePassword, payload);
 
       if (response.data.success) {
         setIsPasswordChanged(true); // Enable save button in profile modal
@@ -184,7 +172,13 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
           className='flex gap-4 p-2 cursor-pointer items-center rounded-md hover:shadow-md'
           onClick={toggleDropdown}
         >
-          <Image src={profileImage || profileImageMale} alt='User Image' width={40} height={40} className='rounded-full' />
+          <Image
+            src={newProfileImage || profileImage || profileImageMale}
+            alt='User Image'
+            width={32}
+            height={32}
+            className='rounded-full shadow-md'
+          />
           <span className='text-base font-medium'>{`${firstname} ${lastname}`}</span>
           <MdKeyboardArrowDown />
         </div>
