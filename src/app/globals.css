@@ -698,6 +698,10 @@ input[type='date']::placeholder {
   color: transparent;
 }
 
+input:not([type="radio"]):read-only, input:not([type="checkbox"]):read-only{
+  background-color: #D0D5DD;
+}
+
 /* Hide the default placeholder text in WebKit browsers */
 /* input[type='date']::-webkit-datetime-edit {
   color: transparent;

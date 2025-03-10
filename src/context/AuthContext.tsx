@@ -50,21 +50,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateProfile = async (updatedUser: Partial<User>) => {
-    try {
-      const response = await API.put(apiEndpoints.admin.updateProfile, updatedUser);
-      if (response.data.success) {
-        const updatedUserData = { ...user, ...updatedUser }; // Merge updated fields
-        setUser(updatedUserData as User); // Update user state
-        localStorage.setItem('user', JSON.stringify(updatedUserData)); // Update local storage
-      } else {
-        throw new Error(response.data.message || 'Failed to update profile.');
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
+    // try {
+    //   const response = await API.put(apiEndpoints.admin.updateProfile, updatedUser);
+    //   if (response.data.success) {
+    //     const updatedUserData = { ...user, ...updatedUser }; // Merge updated fields
+    //     setUser(updatedUserData as User); // Update user state
+    //     localStorage.setItem('user', JSON.stringify(updatedUserData)); // Update local storage
+    //   } else {
+    //     throw new Error(response.data.message || 'Failed to update profile.');
+    //   }
+    // } catch (error) {
+    //   console.error('Error updating profile:', error);
+    //   throw new Error('Failed to update profile. Please try again.');
+    // }
   };
-  
+    
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout, updateProfile }}>
       {children}

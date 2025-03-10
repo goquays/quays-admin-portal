@@ -36,9 +36,23 @@ export const getUserStats = async () => {
   return response.data;
 };
 
-export const getUsers = async () => {
+export const getUsers = async (
+  page: number,
+  size: number,
+  search?: string,
+  startDate?: string,
+  endDate?: string
+) => {
   try {
-    const response = await API.get(apiEndpoints.admin.getUsers);
+    const response = await API.get(apiEndpoints.admin.getUsers, {
+      params: {
+        page,
+        size,
+        search, // Pass the search query to the API
+        startDate,
+        endDate,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching signups:', error);
@@ -46,9 +60,24 @@ export const getUsers = async () => {
   }
 };
 
-export const fetchPolicies = async (type: string) => {
+export const fetchPolicies = async (
+  type: string,
+  page: number,
+  size: number,
+  search?: string,
+  startDate?: string,
+  endDate?: string
+) => {
   try {
-    const response = await API.get(apiEndpoints.admin.getPolicies(type)); // Pass the type directly
+    const response = await API.get(apiEndpoints.admin.getPolicies(type), {
+      params: {
+        page,
+        size,
+        search, // Pass the search query to the API
+        startDate,
+        endDate,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching policies:', error);

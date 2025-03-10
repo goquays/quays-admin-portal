@@ -65,47 +65,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
   const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+  
     // UI Preview
     const reader = new FileReader();
     reader.onload = () => setNewProfileImage(reader.result as string);
     reader.readAsDataURL(file);
-
-    try {
-      const updatedProfileImage = await uploadProfileImage(file);
-
-      // Update user context
-      updateProfile({ profileImage: updatedProfileImage });
-
-      // Persist in localStorage
-      const updatedUser = { ...user, profileImage: updatedProfileImage };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    } catch (error) {
-      console.error('Error updating profile image:', error);
-      alert('Failed to update profile image. Please try again.');
-    }
-  };
-
-  const uploadProfileImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append('profileImage', file); // Append the file to the FormData object
-
-    try {
-      const response = await API.put(apiEndpoints.admin.updateProfile, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Set the content type for file upload
-        },
-      });
-
-      if (response.data.success) {
-        return response.data.data.profileImage; // Return the new profile image URL
-      } else {
-        throw new Error(response.data.message || 'Failed to upload profile image.');
-      }
-    } catch (error: any) {
-      console.error('Error uploading profile image:', error);
-      throw new Error(error.response?.data?.message || 'An error occurred. Please try again.');
-    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,40 +81,22 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
     setConfirmPassword(e.target.value);
   };
 
-  const handleSaveProfile = async () => {
-    try {
-      if (newProfileImage) {
-        // Update the profile image
-        await updateProfile({ profileImage: newProfileImage });
-      }
-
-      if (isPasswordChanged) {
-        // Handle password change (already implemented)
-      }
-
-      openSuccessModal(); // Open success modal
-      closeProfileModal(); // Close profile management modal
-    } catch (error) {
-      console.error('Error saving profile changes:', error);
-      alert('Failed to save profile changes. Please try again.');
-    }
-  };
-
+  
   const handleSavePassword = async () => {
     if (newPassword !== confirmPassword) {
       alert('New password and confirm password do not match.');
       return;
     }
-
+  
     try {
       const payload = {
         oldPassword,
         newPassword,
         confirmPassword,
       };
-
+  
       const response = await API.put(apiEndpoints.admin.changePassword, payload);
-
+  
       if (response.data.success) {
         setIsPasswordChanged(true); // Enable save button in profile modal
         closePasswordModal(); // Close password change modal
@@ -163,6 +109,73 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
       alert(error.response?.data?.message || 'An error occurred. Please try again.');
     }
   };
+
+// Utility function to convert base64 string to File object
+const dataURLtoFile = (dataURL: string, filename: string): File => {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], filename, { type: mime });
+};
+
+const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append('profileImage', file);
+
+  try {
+    const response = await API.put(apiEndpoints.admin.updateProfile, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.success) {
+      // Update local state and storage directly
+      const updatedUser = { 
+        ...user,
+        profileImage: response.data.data.profileImage 
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return response.data.data.profileImage;
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error: any) {
+    console.error('Upload error:', error);
+    throw new Error(error.response?.data?.message || 'Image upload failed');
+  }
+};
+
+// admin-header.tsx
+const handleSaveProfile = async () => {
+  try {
+    let profileUpdated = false;
+    
+    if (newProfileImage) {
+      await uploadProfileImage(dataURLtoFile(newProfileImage, 'profile.jpg'));
+      profileUpdated = true;
+    }
+
+    if (isPasswordChanged) {
+      // Password changes are already handled separately
+    }
+
+    if (profileUpdated) {
+      openSuccessModal();
+      closeProfileModal();
+    }
+  } catch (error: any) {
+    console.error('Save error:', error);
+    alert(error.message || 'Failed to save changes');
+  }
+};
 
   return (
     <header className='flex flex-row px-10 py-6 items-center justify-between shadow-md font-[Inter] sticky top-0 z-10 bg-[#fffaf6]'>
@@ -214,6 +227,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
                     width={158}
                     height={158}
                     className='rounded-full shadow-md'
+                    objectFit='cover'
                   />
                   <label htmlFor="profileImage" className='absolute bottom-2 right-2 p-2 rounded-full bg-white cursor-pointer'>
                     <FaCamera size={16} />
@@ -239,7 +253,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
                 type='email'
                 value={email}
                 disabled
-                className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-gray-100"
+                className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-gray-400"
               />
               <label className='block text-sm font-medium text-gray-700 mb-2 mt-4 text-left'>
                 Password
@@ -249,13 +263,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
                   type='password'
                   value="********"
                   disabled
-                  className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-gray-100"
+                  className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-white"
                 />
+                <div className='flex absolute right-3 top-3 text-blue-500 text-sm gap-1 cursor-pointer' onClick={openPasswordModal}>
                 <MdEdit
                   size={20}
-                  className='absolute right-3 top-3 text-gray-500 cursor-pointer'
-                  onClick={openPasswordModal}
-                > Change</MdEdit>
+                />
+                <span>Change</span>
+                </div>
+                 
               </div>
             </div>
 
@@ -270,7 +286,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
               <button
                 onClick={handleSaveProfile}
                 disabled={!newProfileImage && !isPasswordChanged}
-                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2'
+                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
               >
                 Save Changes
               </button>
@@ -332,7 +348,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
               <button
                 onClick={handleSavePassword}
                 disabled={newPassword !== confirmPassword || !newPassword || !oldPassword}
-                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2'
+                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
               >
                 Save Changes
               </button>

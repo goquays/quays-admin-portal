@@ -11,6 +11,8 @@ import ExportModal from '@/components/modals/ExportModal';
 import RowDetailsModal from '@/components/modals/RowDetailsModal';
 import { fetchPolicies } from '@/libs/endpoints';
 import LoadingSpinner from '@/components/loading-spinner/loading-spinner';
+import apiEndpoints from '@/libs/api-endpoints';
+import { API } from '@/libs/api';
 
 const columns = [
   { key: 'fullName', label: 'Full Name' },
@@ -20,7 +22,7 @@ const columns = [
   { key: 'typeOfInsurance', label: 'Type of Insurance' }, // New column
 ];
 
-export default function PoliciesPage() {
+export default function AbandonedPoliciesPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -30,18 +32,20 @@ export default function PoliciesPage() {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [isRowDetailsModalOpen, setIsRowDetailsModalOpen] = useState<boolean>(false);
   const [policies, setPolicies] = useState<any[]>([]);
+  const [totalRows, setTotalRows] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
-  // Fetch policies when the component mounts
+  // Fetch policies when the component mounts or filters change
   useEffect(() => {
     const loadPolicies = async () => {
       try {
-        const data = await fetchPolicies('ABANDONED'); // Fetch policies of type 'completed'
-        console.log('Fetched policies:', data.data.records); // Debugging
+        setLoading(true);
+        const data = await fetchPolicies('ABANDONED', currentPage, rowsPerPage, searchQuery, startDate, endDate);
         setPolicies(data.data.records);
+        setTotalRows(data.data.totalRecords);
       } catch (error) {
         console.error('Error loading policies:', error);
       } finally {
@@ -50,48 +54,29 @@ export default function PoliciesPage() {
     };
 
     loadPolicies();
-  }, []);
+  }, [currentPage, rowsPerPage, searchQuery, startDate, endDate]);
 
-  // Memoized filtered data
-  const filteredPolicies = useMemo(() => {
+  // Reset to the first page when searching
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  // Normalize data for display
+  const normalizedPolicies = useMemo(() => {
     return policies.map((policy) => ({
       ...policy,
-      // Concatenate all pet types into a single string
       typeOfInsurance: policy.pets.length > 0
         ? policy.pets.map((pet: any) => pet.type).join(', ')
-        : 'N/A', // If no pets, show 'N/A'
-    })).filter((policy) => {
-      // Safely handle null or undefined values
-      const fullName = policy.fullName ? policy.fullName.toLowerCase() : '';
-      const emailAddress = policy.emailAddress ? policy.emailAddress.toLowerCase() : '';
-      const phoneNumber = policy.phoneNumber || '';
-      const policyNumber = policy.policyNumber || '';
+        : 'N/A',
+    }));
+  }, [policies]);
 
-      const matchesSearchQuery =
-        fullName.includes(searchQuery.toLowerCase()) ||
-        emailAddress.includes(searchQuery.toLowerCase()) ||
-        phoneNumber.includes(searchQuery) ||
-        policyNumber.includes(searchQuery);
-
-      const matchesDateRange =
-        (!startDate || policy.dateCreated >= startDate) &&
-        (!endDate || policy.dateCreated <= endDate);
-
-      return matchesSearchQuery && matchesDateRange;
-    });
-  }, [policies, searchQuery, startDate, endDate]);
-
-  // Pagination logic
-  const totalRows = filteredPolicies.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const paginatedPolicies = useMemo(() => filteredPolicies.slice(startIndex, endIndex), [filteredPolicies, startIndex, endIndex]);
 
   // Handle rows per page change
   const handleRowsPerPageChange = useCallback((value: number) => {
     setRowsPerPage(value);
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1);
   }, []);
 
   // Handle page navigation
@@ -135,24 +120,39 @@ export default function PoliciesPage() {
     return pages;
   }, [currentPage, totalPages]);
 
-  // Function to export data to Excel
-  const exportToExcel = useCallback(async () => {
-    try {
-      const worksheet = XLSX.utils.json_to_sheet(filteredPolicies);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Abandoned Policies');
-      XLSX.writeFile(workbook, 'abandoned-policies.xlsx');
-    } catch (error) {
-      throw new Error('Failed to export data'); // Throw an error if export fails
-    }
-  }, [filteredPolicies]);  // Function to focus the date input when the wrapper is clicked
-
-  const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
+   // Function to focus the date input when the wrapper is clicked
+   const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
     if (ref.current) {
       ref.current.focus();
       ref.current.showPicker();
     }
   }, []);
+
+  // Function to export data to Excel
+  const exportToExcel = useCallback(async () => {
+    try {
+      const response = await API.get(apiEndpoints.admin.exportPolicies.replace('{type}', 'ABANDONED'), {
+        params: {
+          search: searchQuery,
+          startDate,
+          endDate,
+        },
+      });
+      const data = response.data.data.records;
+      const normalizedData = data.map((policy: any) => ({
+        ...policy,
+        typeOfInsurance: policy.pets.length > 0
+          ? policy.pets.map((pet: any) => pet.type).join(', ')
+          : 'N/A',
+      }));
+      const worksheet = XLSX.utils.json_to_sheet(normalizedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Abandoned Policies');
+      XLSX.writeFile(workbook, 'abandoned-policies.xlsx');
+    } catch (error) {
+      throw new Error('Failed to export data');
+    }
+  }, [searchQuery, startDate, endDate]);
 
   // Function to handle row click
   const handleRowClick = (row: any) => {
@@ -167,9 +167,7 @@ export default function PoliciesPage() {
   };
 
   if (loading) {
-    return <div>
-      <LoadingSpinner />
-    </div>;
+    return <div><LoadingSpinner /></div>;
   }
 
   return (
@@ -189,7 +187,7 @@ export default function PoliciesPage() {
       </div>
 
       {/* Date filter */}
-      <div className="flex justify-end gap-4 mb-5 -z-0">
+      <div className="flex justify-end gap-4 mb-5">
         <DateInput
           ref={startDateRef}
           value={startDate}
@@ -205,7 +203,7 @@ export default function PoliciesPage() {
           onClick={() => handleWrapperClick(endDateRef)}
         />
         <button
-          onClick={() => { }}
+          onClick={() => {}}
           className="bg-[#000034] text-white px-4 py-2 rounded-full hover:bg-[#000034]"
         >
           Apply Date Range
@@ -219,12 +217,12 @@ export default function PoliciesPage() {
       </div>
 
       {/* Table */}
-      <Table data={paginatedPolicies} startIndex={startIndex} columns={columns} onRowClick={handleRowClick} />
+      <Table data={normalizedPolicies} startIndex={(currentPage - 1) * rowsPerPage} columns={columns} onRowClick={handleRowClick} />
 
       {/* Pagination and rows per page dropdown */}
       <Pagination
         rowsPerPage={rowsPerPage}
-        totalPages={totalPages}
+        totalPages={Math.ceil(totalRows / rowsPerPage)}
         currentPage={currentPage}
         handleRowsPerPageChange={handleRowsPerPageChange}
         goToPage={goToPage}
@@ -234,7 +232,6 @@ export default function PoliciesPage() {
       {/* Export Modal */}
       {isExportModalOpen && (
         <ExportModal
-          data={filteredPolicies}
           onClose={() => setIsExportModalOpen(false)}
           onExport={exportToExcel}
           columns={columns}

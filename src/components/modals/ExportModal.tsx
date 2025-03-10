@@ -4,24 +4,26 @@ import { MdClose } from 'react-icons/md';
 import ExportSuccessModal from './ExportSuccess';
 
 interface ExportModalProps {
-  data: any[];
   onClose: () => void;
-  onExport: () => Promise<void>; // Update to return a Promise
+  onExport: () => Promise<void>; // Function to handle export
   columns: { key: string; label: string }[];
 }
 
-const ExportModal: React.FC<ExportModalProps> = ({ data, onClose, onExport, columns }) => {
+const ExportModal: React.FC<ExportModalProps> = ({ onClose, onExport, columns }) => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false); // Loading state
 
   const handleExport = async () => {
     try {
+      setIsExporting(true); // Start loading
       await onExport(); // Call the export function
       setIsSuccessModalOpen(true); // Show success modal
-      // Do not call onClose() here
     } catch (error) {
       setIsFailureModalOpen(true); // Show failure modal
       console.error('Export failed:', error);
+    } finally {
+      setIsExporting(false); // Stop loading
     }
   };
 
@@ -33,8 +35,16 @@ const ExportModal: React.FC<ExportModalProps> = ({ data, onClose, onExport, colu
             <div className="text-base font-semibold mb-4">Export Data?</div>
             <MdClose size={24} className="text-black cursor-pointer" onClick={onClose} />
           </div>
-          <div className="max-h-96 overflow-y-auto">
-            <ExportTable data={data} startIndex={0} columns={columns} />
+          <div className="max-h-96 overflow-y-auto p-4">
+            {isExporting ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-600">Exporting data, please wait...</p>
+              </div>
+            ) : (
+              <p className="text-gray-600">
+                Are you sure you want to export the filtered data? This may take a few moments.
+              </p>
+            )}
           </div>
           <div className="flex justify-end gap-4 mt-4 py-6 border-t border-gray-20">
             <button
@@ -45,9 +55,10 @@ const ExportModal: React.FC<ExportModalProps> = ({ data, onClose, onExport, colu
             </button>
             <button
               onClick={handleExport}
-              className="bg-[#000034] text-white px-4 py-2 rounded-full hover:bg-[#000034]"
+              disabled={isExporting} // Disable button while exporting
+              className="bg-[#000034] text-white px-4 py-2 rounded-full hover:bg-[#000034] disabled:opacity-50"
             >
-              Export
+              {isExporting ? 'Exporting...' : 'Export'}
             </button>
           </div>
         </div>

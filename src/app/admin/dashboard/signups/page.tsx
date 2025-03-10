@@ -10,6 +10,8 @@ import ExportModal from '@/components/modals/ExportModal';
 import RowDetailsModal from '@/components/modals/RowDetailsModal';
 import { getUsers } from '@/libs/endpoints';
 import ProtectedRoute from '@/components/protection/protectedRoute';
+import apiEndpoints from '@/libs/api-endpoints';
+import { API } from '@/libs/api';
 
 
 const columns = [
@@ -35,59 +37,42 @@ const SignupsPage = () => {
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
 
+    const [totalRows, setTotalRows] = useState<number>(0);
+
     useEffect(() => {
         const loadUsers = async () => {
-            try {
-                const data = await getUsers();
-                setUsers(data.data.records);
-            } catch (error) {
-                console.error('Error loading users:', error);
-            } finally {
-                setLoading(false);
-            }
+          try {
+            setLoading(true);
+            const data = await getUsers(currentPage, rowsPerPage, searchQuery, startDate, endDate);
+            setUsers(data.data.records);
+            setTotalRows(data.data.totalRecords); // Ensure this is set correctly
+          } catch (error) {
+            console.error('Error loading users:', error);
+          } finally {
+            setLoading(false);
+          }
         };
-
+      
         loadUsers();
-    }, []);
+      }, [currentPage, rowsPerPage, searchQuery, startDate, endDate]); // Add searchQuery as a dependency
+
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, startDate, endDate]);
 
     // Normalize data before passing it to the Table or ExportModal
     const normalizedSignups = useMemo(() => {
         return users.map((user) => ({
             ...user,
-            fullName: `${user.firstname || ''} ${user.lastname || ''}`.trim(), // Combine first and last name
+            fullName: `${user.firstname || ''} ${user.lastname || ''}`.trim(),
         }));
     }, [users]);
 
-    // Memoized filtered data
-    const filteredSignups = useMemo(() => {
-        return normalizedSignups.filter((user) => {
-            const fullName = user.fullName.toLowerCase();
-            const email = user.email ? user.email.toLowerCase() : '';
-            const phoneNumber = user.phoneNumber || '';
-            const signupSource = user.onboardingSource || '';
-
-            const matchesSearchQuery =
-                fullName.includes(searchQuery.toLowerCase()) ||
-                email.includes(searchQuery.toLowerCase()) ||
-                phoneNumber.includes(searchQuery) ||
-                signupSource.includes(searchQuery);
-
-            const matchesDateRange =
-                (!startDate || user.dateCreated >= startDate) &&
-                (!endDate || user.dateCreated <= endDate);
-
-            return matchesSearchQuery && matchesDateRange;
-        });
-    }, [normalizedSignups, searchQuery, startDate, endDate]);
-
-    // Pagination logic
-    const totalRows = filteredSignups.length;
+    // Update totalPages based on API's total
     const totalPages = Math.ceil(totalRows / rowsPerPage);
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    const paginatedSignups = useMemo(() => filteredSignups.slice(startIndex, endIndex), [filteredSignups, startIndex, endIndex]);
 
-    // Handle rows per page change
     const handleRowsPerPageChange = useCallback((value: number) => {
         setRowsPerPage(value);
         setCurrentPage(1); // Reset to the first page
@@ -137,15 +122,27 @@ const SignupsPage = () => {
     // Function to export data to Excel
     const exportToExcel = useCallback(async () => {
         try {
-          const worksheet = XLSX.utils.json_to_sheet(filteredSignups);
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
-          XLSX.writeFile(workbook, 'signups.xlsx');
+            const response = await API.get(apiEndpoints.admin.exportUsers, {
+                params: {
+                    search: searchQuery,
+                    startDate,
+                    endDate,
+                },
+            });
+            const data = response.data.data.records;
+            const normalizedData = data.map((user: any) => ({
+                ...user,
+                fullName: `${user.firstname || ''} ${user.lastname || ''}`.trim(),
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(normalizedData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
+            XLSX.writeFile(workbook, 'signups.xlsx');
         } catch (error) {
-          throw new Error('Failed to export data'); // Throw an error if export fails
+            throw new Error('Failed to export data');
         }
-      }, [filteredSignups]);
-
+    }, [searchQuery, startDate, endDate]);
+    
     // Function to focus the date input when the wrapper is clicked
     const handleWrapperClick = useCallback((ref: React.RefObject<HTMLInputElement | null>) => {
         if (ref.current) {
@@ -213,8 +210,7 @@ const SignupsPage = () => {
             </div>
 
             {/* Table */}
-            <Table data={paginatedSignups} startIndex={startIndex} columns={columns} onRowClick={handleRowClick} />
-
+            <Table data={normalizedSignups} startIndex={(currentPage - 1) * rowsPerPage} columns={columns} onRowClick={handleRowClick} />
             {/* Pagination and rows per page dropdown */}
             <Pagination
                 rowsPerPage={rowsPerPage}
@@ -224,17 +220,14 @@ const SignupsPage = () => {
                 goToPage={goToPage}
                 generatePageNumbers={generatePageNumbers}
             />
-
             {/* Export Modal */}
             {isExportModalOpen && (
                 <ExportModal
-                    data={filteredSignups}
                     onClose={() => setIsExportModalOpen(false)}
                     onExport={exportToExcel}
                     columns={columns}
                 />
             )}
-
             {/* Row Details Modal */}
             <RowDetailsModal
                 isOpen={isRowDetailsModalOpen}
