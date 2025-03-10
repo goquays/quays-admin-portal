@@ -65,7 +65,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
   const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     // UI Preview
     const reader = new FileReader();
     reader.onload = () => setNewProfileImage(reader.result as string);
@@ -81,101 +81,89 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ firstname, lastname, p
     setConfirmPassword(e.target.value);
   };
 
-  
-  const handleSavePassword = async () => {
+
+  const handleSavePassword = async (e: React.FormEvent) => {
+    e.preventDefault(); // Add this
+
     if (newPassword !== confirmPassword) {
-      alert('New password and confirm password do not match.');
+      alert('Passwords do not match');
       return;
     }
-  
+
     try {
-      const payload = {
-        oldPassword,
-        newPassword,
-        confirmPassword,
-      };
-  
-      const response = await API.put(apiEndpoints.admin.changePassword, payload);
-  
+      const response = await API.put(
+        apiEndpoints.admin.changePassword,
+        { oldPassword, newPassword, confirmPassword }
+      );
+
       if (response.data.success) {
-        setIsPasswordChanged(true); // Enable save button in profile modal
-        closePasswordModal(); // Close password change modal
-        alert('Password changed successfully.');
-      } else {
-        alert(response.data.message || 'Failed to change password.');
+        closePasswordModal();
+        alert('Password updated!');
       }
     } catch (error: any) {
-      console.error('Error changing password:', error);
-      alert(error.response?.data?.message || 'An error occurred. Please try again.');
+      console.error('Password change error:', error);
+      alert(error.response?.data?.message || 'Password change failed');
     }
   };
 
-// Utility function to convert base64 string to File object
-const dataURLtoFile = (dataURL: string, filename: string): File => {
-  const arr = dataURL.split(',');
-  const mime = arr[0].match(/:(.*?);/)![1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
+  // Utility function to convert base64 string to File object
+  const dataURLtoFile = (dataURL: string, filename: string): File => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
 
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
 
-  return new File([u8arr], filename, { type: mime });
-};
+    return new File([u8arr], filename, { type: mime });
+  };
 
-const uploadProfileImage = async (file: File) => {
-  const formData = new FormData();
-  formData.append('profileImage', file);
+  const uploadProfileImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('profileImage', file);
 
-  try {
-    const response = await API.put(apiEndpoints.admin.updateProfile, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    try {
+      const response = await API.put(apiEndpoints.admin.updateProfile, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-    if (response.data.success) {
-      // Update local state and storage directly
-      const updatedUser = { 
-        ...user,
-        profileImage: response.data.data.profileImage 
-      };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return response.data.data.profileImage;
-    } else {
+      if (response.data.success) {
+        // Update context and local storage directly
+        const updatedUser = {
+          ...user,
+          profileImage: response.data.data.profileImage
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return response.data.data.profileImage;
+      }
+
       throw new Error(response.data.message);
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      throw new Error(error.response?.data?.message || 'Image upload failed');
     }
-  } catch (error: any) {
-    console.error('Upload error:', error);
-    throw new Error(error.response?.data?.message || 'Image upload failed');
-  }
-};
+  };
 
-// admin-header.tsx
-const handleSaveProfile = async () => {
-  try {
-    let profileUpdated = false;
-    
-    if (newProfileImage) {
-      await uploadProfileImage(dataURLtoFile(newProfileImage, 'profile.jpg'));
-      profileUpdated = true;
-    }
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission
+    try {
+      if (newProfileImage) {
+        const file = dataURLtoFile(newProfileImage, 'profile.jpg');
+        await uploadProfileImage(file);
+      }
 
-    if (isPasswordChanged) {
-      // Password changes are already handled separately
-    }
-
-    if (profileUpdated) {
       openSuccessModal();
       closeProfileModal();
+    } catch (error: any) {
+      console.error('Save error:', error);
+      alert(error.message || 'Failed to save changes');
     }
-  } catch (error: any) {
-    console.error('Save error:', error);
-    alert(error.message || 'Failed to save changes');
-  }
-};
+  };
 
   return (
     <header className='flex flex-row px-10 py-6 items-center justify-between shadow-md font-[Inter] sticky top-0 z-10 bg-[#fffaf6]'>
@@ -213,84 +201,84 @@ const handleSaveProfile = async () => {
       {isProfileModalOpen && (
         <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
           <div className='bg-white rounded-lg shadow-lg text-center max-w-md w-full mx-4'>
-            <div className="flex justify-end p-4">
-              <MdClose size={24} className="text-black cursor-pointer" onClick={closeProfileModal} />
-            </div>
-
-            {/* Change Profile Picture */}
-            <div className='mb-4 px-6'>
-              <div className='flex flex-col items-center'>
-                <div className='relative'>
-                  <Image
-                    src={newProfileImage || profileImage || profileImageMale}
-                    alt='User Image'
-                    width={158}
-                    height={158}
-                    className='rounded-full shadow-md'
-                    objectFit='cover'
-                  />
-                  <label htmlFor="profileImage" className='absolute bottom-2 right-2 p-2 rounded-full bg-white cursor-pointer'>
-                    <FaCamera size={16} />
-                  </label>
-                  <input
-                    id="profileImage"
-                    type='file'
-                    accept='image/*'
-                    className='hidden'
-                    onChange={handleProfileImageChange}
-                  />
-                </div>
-                <span className='text-lg font-medium mt-2'>{`${firstname} ${lastname}`}</span>
+            <form onSubmit={handleSaveProfile}> {/* Add form element */}
+              <div className="flex justify-end p-4">
+                <MdClose size={24} className="text-black cursor-pointer" onClick={closeProfileModal} />
               </div>
-            </div>
 
-            {/* User Details */}
-            <div className='mb-4 px-6'>
-              <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
-                Email
-              </label>
-              <input
-                type='email'
-                value={email}
-                disabled
-                className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-gray-400"
-              />
-              <label className='block text-sm font-medium text-gray-700 mb-2 mt-4 text-left'>
-                Password
-              </label>
-              <div className='relative'>
+              {/* Change Profile Picture */}
+              <div className='mb-4 px-6'>
+                <div className='flex flex-col items-center'>
+                  <div className='relative'>
+                    <Image
+                      src={newProfileImage || profileImage || profileImageMale}
+                      alt='User Image'
+                      width={158}
+                      height={158}
+                      className='rounded-full shadow-md'
+                      objectFit='cover'
+                    />
+                    <label htmlFor="profileImage" className='absolute bottom-2 right-2 p-2 rounded-full bg-white cursor-pointer'>
+                      <FaCamera size={16} />
+                    </label>
+                    <input
+                      id="profileImage"
+                      type='file'
+                      accept='image/*'
+                      className='hidden'
+                      onChange={handleProfileImageChange}
+                    />
+                  </div>
+                  <span className='text-lg font-medium mt-2'>{`${firstname} ${lastname}`}</span>
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div className='mb-4 px-6'>
+                <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
+                  Email
+                </label>
                 <input
-                  type='password'
-                  value="********"
+                  type='email'
+                  value={email}
                   disabled
-                  className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-white"
+                  className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-gray-400"
                 />
-                <div className='flex absolute right-3 top-3 text-blue-500 text-sm gap-1 cursor-pointer' onClick={openPasswordModal}>
-                <MdEdit
-                  size={20}
-                />
-                <span>Change</span>
-                </div>
-                 
-              </div>
-            </div>
+                <label className='block text-sm font-medium text-gray-700 mb-2 mt-4 text-left'>
+                  Password
+                </label>
+                <div className='relative'>
+                  <input
+                    type='password'
+                    value="********"
+                    disabled
+                    className="mt-1 block w-full px-3 py-2 border custom-placeholder placeholder-gray-400 border-gray-200 rounded-3xl shadow-sm focus:outline-none focus:ring-gray-700 focus:border-gray-700 bg-white"
+                  />
+                  <div className='flex absolute right-3 top-3 text-blue-500 text-sm gap-1 cursor-pointer' onClick={openPasswordModal}>
+                    <MdEdit
+                      size={20}
+                    />
+                    <span>Change</span>
+                  </div>
 
-            {/* Buttons */}
-            <div className='flex justify-end gap-4 p-6'>
-              <button
-                onClick={closeProfileModal}
-                className='bg-transparent text-gray-900 px-12 py-2 rounded-full border'
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveProfile}
-                disabled={!newProfileImage && !isPasswordChanged}
-                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
-              >
-                Save Changes
-              </button>
-            </div>
+                </div>
+              </div>
+              <div className='flex justify-end gap-4 p-6'>
+                <button
+                  type="button" // Add type="button"
+                  onClick={closeProfileModal}
+                  className='bg-transparent text-gray-900 px-12 py-2 rounded-full border'
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit" // Change to type="submit"
+                  className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -299,60 +287,62 @@ const handleSaveProfile = async () => {
       {isPasswordModalOpen && (
         <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
           <div className='bg-white rounded-lg shadow-lg text-center max-w-md w-full mx-4'>
-            <div className="flex justify-end p-4">
-              <MdClose size={24} className="text-black cursor-pointer" onClick={closePasswordModal} />
-            </div>
+            <form onSubmit={handleSavePassword}> {/* Add form element */}
+              <div className="flex justify-end p-4">
+                <MdClose size={24} className="text-black cursor-pointer" onClick={closePasswordModal} />
+              </div>
 
-            {/* Change Password */}
-            <div className='mb-4 px-6'>
-              <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
-                Old Password
-              </label>
-              <input
-                type='password'
-                placeholder='Old Password'
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className='w-full p-2 border border-gray-300 rounded-lg mb-4'
-              />
-              <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
-                New Password
-              </label>
-              <input
-                type='password'
-                placeholder='New Password'
-                value={newPassword}
-                onChange={handlePasswordChange}
-                className='w-full p-2 border border-gray-300 rounded-lg mb-4'
-              />
-              <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
-                Confirm New Password
-              </label>
-              <input
-                type='password'
-                placeholder='Confirm New Password'
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                className='w-full p-2 border border-gray-300 rounded-lg'
-              />
-            </div>
+              {/* Change Password */}
+              <div className='mb-4 px-6'>
+                <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
+                  Old Password
+                </label>
+                <input
+                  type='password'
+                  placeholder='Old Password'
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  className='w-full p-2 border border-gray-300 rounded-lg mb-4'
+                />
+                <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
+                  New Password
+                </label>
+                <input
+                  type='password'
+                  placeholder='New Password'
+                  value={newPassword}
+                  onChange={handlePasswordChange}
+                  className='w-full p-2 border border-gray-300 rounded-lg mb-4'
+                />
+                <label className='block text-sm font-medium text-gray-700 mb-2 text-left'>
+                  Confirm New Password
+                </label>
+                <input
+                  type='password'
+                  placeholder='Confirm New Password'
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  className='w-full p-2 border border-gray-300 rounded-lg'
+                />
+              </div>
 
-            {/* Buttons */}
-            <div className='flex justify-end gap-4 p-6'>
-              <button
-                onClick={closePasswordModal}
-                className='bg-transparent text-gray-900 px-12 py-2 rounded-full border'
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSavePassword}
-                disabled={newPassword !== confirmPassword || !newPassword || !oldPassword}
-                className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
-              >
-                Save Changes
-              </button>
-            </div>
+              {/* Buttons */}
+              <div className='flex justify-end gap-4 p-6'>
+                <button
+                  type="button" // Add type="button"
+                  onClick={closePasswordModal}
+                  className='bg-transparent text-gray-900 px-12 py-2 rounded-full border'
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit" // Change to type="submit"
+                  className='bg-[#000034] text-white py-2 px-4 rounded-3xl hover:bg-[#000034] focus:outline-none focus:ring-2 focus:ring-[#000034] focus:ring-offset-2 disabled:bg-[#00003480]'
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
