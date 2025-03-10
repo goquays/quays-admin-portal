@@ -11,6 +11,14 @@ const nextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await API.put(apiEndpoints.admin.updateProfile, updatedUser);
       if (response.data.success) {
         const updatedUserData = { ...user, ...updatedUser }; // Merge updated fields
-        setUser(updatedUserData); // Update user state
+        setUser(updatedUserData as User); // Update user state
         localStorage.setItem('user', JSON.stringify(updatedUserData)); // Update local storage
       } else {
         throw new Error(response.data.message || 'Failed to update profile.');
